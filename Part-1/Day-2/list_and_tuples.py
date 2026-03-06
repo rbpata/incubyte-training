@@ -2,17 +2,17 @@
 from collections import deque
 
 
-list = [1, 2, 3, 4, 3]
-print(list)
-list.append(39)
-print(list)
-print(list.index(39))
-print(list.count(3))
-print(list.pop())
-print(list)
+l = [1, 2, 3, 4, 3]
+print(l)
+l.append(39)
+print(l)
+print(l.index(39))
+print(l.count(3))
+print(l.pop())
+print(l)
 
-print(list.reverse())
-print(list.sort())
+print(l.reverse())
+print(l.sort())
 
 
 queue = deque([1, 2, 3, 4, 3])
@@ -23,7 +23,7 @@ print(queue.popleft())
 print(queue.pop())
 
 
-# list comprehension
+# l comprehension
 
 square = []
 for i in range(10):
@@ -41,3 +41,9 @@ print(square)
 
 pairs = [(x, y) for x in [2, 3, 4] for y in [1, 2, 3] if x != y]
 print(pairs)
+
+
+#transpose of a matrix
+matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+transpose = [[ row[i] for row in matrix] for i in range(3)]
+print(transpose)
