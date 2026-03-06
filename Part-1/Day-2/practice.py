@@ -47,3 +47,45 @@ print(pairs)
 matrix = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
 transpose = [[ row[i] for row in matrix] for i in range(3)]
 print(transpose)
+
+empty = ()
+singleton = (1,)
+print(type(empty))
+print(type(singleton))
+
+
+set_a = {1, 2, 3, 4, 5}
+set_b = {4, 5, 6, 7, 8}
+
+print(set_a.union(set_b))
+print(set_a.intersection(set_b))
+print(set_a.difference(set_b))
+
+dict_a = {'a': 1, 'b': 2, 'c': 3}
+print(dict_a)
+print(dict_a['a'])
+dict_a['d'] = 4
+print(dict_a)
+print(dict_a.keys())
+print(dict_a.values())
+print(dict_a.items())
+
+dict_b = {k: v**2 for k,v in dict_a.items()}
+print(dict_b)
+
+dict_a['dict2'] = dict_b
+print(dict_a)
+
+
+# string formatting
+print("Hello, {}".format("Ram"))
+print("The value of pi is approximately {:.2f}".format(3.14159))
+
+name = "Ram"
+print(f"Hello, {name}")
+
+
+l2 = [1,2,3,4,5]
+
+even = [x if x%2==0 else 0 for x in l2]
+print(even)

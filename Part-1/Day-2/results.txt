@@ -1,0 +1,5 @@
+Average Score: 78.0
+Highest Score: 90
+Students with score above 80:
+Ram: 85
+Amit: 90
