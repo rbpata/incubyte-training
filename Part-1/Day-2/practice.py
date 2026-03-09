@@ -1,5 +1,5 @@
 # working with the list
-from collections import deque
+from collections import ChainMap, deque
 
 
 l = [1, 2, 3, 4, 3]
@@ -89,3 +89,87 @@ l2 = [1,2,3,4,5]
 
 even = [x if x%2==0 else 0 for x in l2]
 print(even)
+
+
+
+d= {
+    'tata': 230,
+    "maruti": 150,
+    "hyundai": 180
+}
+
+min_v = min(zip(d.values(), d.keys()))
+print(min_v)
+
+max_v = max(zip(d.values(), d.keys()))
+print(max_v)
+
+
+minimum = min(d, key= lambda k: d[k])
+print(f"Minimum value: {minimum}")
+maximum = max(d, key= lambda k: d[k])
+print(f"Maximum value: {maximum}")
+
+
+a = [{
+    'name': 'Ram',
+    'age': 30,
+    'city': 'Delhi'
+    
+},{
+    'name': 'Shyam',
+    'age': 25,
+    'city': 'Mumbai'
+}
+]
+b = {
+    'name': 'radha',
+    'age': 10,
+    'city': 'Mumbai'
+}
+from operator import itemgetter
+
+minimum_using_item_getter = min(a+[b],key=itemgetter('age'))
+maximum_using_item_getter = max(a+[b],key=itemgetter('age'))
+
+print(f"Minimum value (using itemgetter): {minimum_using_item_getter}")
+print(f"Maximum value (using itemgetter): {maximum_using_item_getter}")
+
+# print(a.keys() & b.keys())
+# print(a.items() & b.items())
+
+
+
+words = ["apple", "banana", "cherry", "date", "elderberry", "fig", "grape", "honeydew", "kiwi", "lemon","apple", "banana", "cherry", "date", "elderberry", "fig"]
+
+from collections import Counter
+
+word_count = Counter(words)
+print(word_count.most_common(2))
+
+
+
+from collections import defaultdict,namedtuple
+
+Person = namedtuple('Person', ['name', 'age', 'city'])
+
+p1 = Person(name='Ram', age=30, city='Delhi')
+print(p1)
+print(p1.name)
+print(p1.age)
+print(p1.city)
+
+d = defaultdict(int)
+d['a'] += 1
+print(d['a'])
+print(d['b'])   
+
+
+values = ChainMap()
+values["x"] = 1
+
+
+values = values.new_child()
+values["x"] = 2
+
+print(values['x'])
