@@ -117,6 +117,7 @@ class Loan:
     def __init__(self, member, item):
         self.member = member
         self.item = item
+        self.is_active = True
 
     def process(self):
         return self.member.borrow_item(self.item)
