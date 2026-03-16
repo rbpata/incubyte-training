@@ -1,7 +1,8 @@
 from fastapi import Depends, FastAPI, HTTPException
+from uuid import UUID
 
 from src.app.dependencies import get_task_service
-from src.app.schemas.task import Task
+from src.app.schemas.task import Task, TaskCreate
 from src.app.services.task_service import TaskNotFoundError, TaskService
 
 
@@ -11,19 +12,22 @@ app = FastAPI(
     swagger_ui_parameters={"syntaxHighlight": {"theme": "obsidian"}},
 )
 
+
 @app.get("/tasks", response_model=list[Task], summary="Get all tasks")
 def get_tasks(task_service: TaskService = Depends(get_task_service)):
     return task_service.list_tasks()
 
 
 @app.post("/tasks", response_model=Task, summary="Create a new task")
-def create_task(task_data: Task, task_service: TaskService = Depends(get_task_service)):
+def create_task(
+    task_data: TaskCreate, task_service: TaskService = Depends(get_task_service)
+):
     return task_service.create_task(task_data)
 
 
 @app.put("/tasks/{task_id}", response_model=Task, summary="Update an existing task")
 def update_task(
-    task_id: str,
+    task_id: UUID,
     task_data: Task,
     task_service: TaskService = Depends(get_task_service),
 ):
@@ -34,7 +38,7 @@ def update_task(
 
 
 @app.delete("/tasks/{task_id}", response_model=Task, summary="Delete a task")
-def delete_task(task_id: str, task_service: TaskService = Depends(get_task_service)):
+def delete_task(task_id: UUID, task_service: TaskService = Depends(get_task_service)):
     try:
         return task_service.delete_task(task_id=task_id)
     except TaskNotFoundError as error:

@@ -1,5 +1,6 @@
 from src.app.repositories.task_repository import TaskRepository
-from src.app.schemas.task import Task
+from src.app.schemas.task import Task, TaskCreate
+from uuid import UUID
 
 
 class TaskNotFoundError(Exception):
@@ -13,10 +14,10 @@ class TaskService:
     def list_tasks(self) -> list[Task]:
         return self._task_repository.list_tasks()
 
-    def create_task(self, task_data: Task) -> Task:
+    def create_task(self, task_data: TaskCreate) -> Task:
         return self._task_repository.create_task(task_data)
 
-    def update_task(self, task_id: str, task_data: Task) -> Task:
+    def update_task(self, task_id: UUID, task_data: Task) -> Task:
         updated_task = self._task_repository.update_task(
             task_id=task_id, task_data=task_data
         )
@@ -24,7 +25,7 @@ class TaskService:
             raise TaskNotFoundError(f"Task not found: {task_id}")
         return updated_task
 
-    def delete_task(self, task_id: str) -> Task:
+    def delete_task(self, task_id: UUID) -> Task:
         deleted_task = self._task_repository.delete_task(task_id=task_id)
         if deleted_task is None:
             raise TaskNotFoundError(f"Task not found: {task_id}")

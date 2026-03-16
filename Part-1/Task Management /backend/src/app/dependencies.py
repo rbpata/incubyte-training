@@ -1,24 +1,21 @@
 from fastapi import Depends
+from sqlalchemy.orm import Session
 
 from src.app.repositories.task_repository import TaskRepository
-from src.app.schemas.task import Task
 from src.app.services.task_service import TaskService
+from src.app.db.session import SessionLocal
 
 
-default_task_repository = TaskRepository(
-    initial_tasks=[
-        Task(
-            id="1",
-            title="Task 1",
-            description="Description for Task 1",
-            is_completed=False,
-        )
-    ]
-)
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-def get_task_repository() -> TaskRepository:
-    return default_task_repository
+def get_task_repository(db: Session = Depends(get_db)) -> TaskRepository:
+    return TaskRepository(db=db)
 
 
 def get_task_service(

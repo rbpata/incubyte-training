@@ -1,4 +1,6 @@
 import pytest
+import uuid
+from src.app.schemas.task import Task, TaskCreate
 from src.app.services.task_service import TaskNotFoundError, TaskService
 
 
@@ -18,8 +20,8 @@ def test_task_service_initialization(task_service_instance):
 
 def test_task_service_list_tasks(task_service_instance, mock_task_repository):
     mock_tasks = [
-        {"id": "1", "title": "Task 1"},
-        {"id": "2", "title": "Task 2"},
+        Task(id=uuid.uuid4(), title="Task 1", description="D1", is_completed=False),
+        Task(id=uuid.uuid4(), title="Task 2", description="D2", is_completed=True),
     ]
     mock_task_repository.list_tasks.return_value = mock_tasks
 
@@ -30,12 +32,16 @@ def test_task_service_list_tasks(task_service_instance, mock_task_repository):
 
 
 def test_task_service_create_task(task_service_instance, mock_task_repository):
-    task_data = {
-        "title": "Task 3",
-        "description": "Description for Task 3",
-        "is_completed": False,
-    }
-    created_task = {"id": "3", **task_data}
+    task_data = TaskCreate(
+        title="Task 3",
+        description="Description for Task 3",
+    )
+    created_task = Task(
+        id=uuid.uuid4(),
+        title="Task 3",
+        description="Description for Task 3",
+        is_completed=False,
+    )
     mock_task_repository.create_task.return_value = created_task
 
     result = task_service_instance.create_task(task_data)
@@ -45,13 +51,18 @@ def test_task_service_create_task(task_service_instance, mock_task_repository):
 
 
 def test_task_service_update_task(task_service_instance, mock_task_repository):
-    task_id = "1"
-    updated_data = {
-        "title": "Updated Task 1",
-        "description": "Updated description",
-        "is_completed": True,
-    }
-    updated_task = {"id": task_id, **updated_data}
+    task_id = uuid.uuid4()
+    updated_data = Task(
+        title="Updated Task 1",
+        description="Updated description",
+        is_completed=True,
+    )
+    updated_task = Task(
+        id=task_id,
+        title="Updated Task 1",
+        description="Updated description",
+        is_completed=True,
+    )
     mock_task_repository.update_task.return_value = updated_task
 
     result = task_service_instance.update_task(task_id, updated_data)
@@ -66,12 +77,12 @@ def test_task_service_update_task(task_service_instance, mock_task_repository):
 def test_task_service_update_task_not_found(
     task_service_instance, mock_task_repository
 ):
-    task_id = "999"
-    updated_data = {
-        "title": "Missing",
-        "description": "Does not exist",
-        "is_completed": False,
-    }
+    task_id = uuid.uuid4()
+    updated_data = Task(
+        title="Missing",
+        description="Does not exist",
+        is_completed=False,
+    )
     mock_task_repository.update_task.return_value = None
 
     with pytest.raises(TaskNotFoundError):
@@ -84,13 +95,13 @@ def test_task_service_update_task_not_found(
 
 
 def test_task_service_delete_task(task_service_instance, mock_task_repository):
-    task_id = "1"
-    deleted_task = {
-        "id": task_id,
-        "title": "Task 1",
-        "description": "Description for Task 1",
-        "is_completed": False,
-    }
+    task_id = uuid.uuid4()
+    deleted_task = Task(
+        id=task_id,
+        title="Task 1",
+        description="Description for Task 1",
+        is_completed=False,
+    )
     mock_task_repository.delete_task.return_value = deleted_task
 
     result = task_service_instance.delete_task(task_id)
@@ -102,7 +113,7 @@ def test_task_service_delete_task(task_service_instance, mock_task_repository):
 def test_task_service_delete_task_not_found(
     task_service_instance, mock_task_repository
 ):
-    task_id = "999"
+    task_id = uuid.uuid4()
     mock_task_repository.delete_task.return_value = None
 
     with pytest.raises(TaskNotFoundError):
