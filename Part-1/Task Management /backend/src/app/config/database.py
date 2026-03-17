@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost/task_db"
+from src.app.config.settings import DATABASE_URL
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True, echo_pool=True)

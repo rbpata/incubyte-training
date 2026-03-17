@@ -1,15 +1,41 @@
 import uuid
 
+from sqlalchemy import asc, desc, select
+from sqlalchemy.orm import Session
 from src.app.models.tasks import Task as TaskModel
 from src.app.schemas.task import Task as TaskSchema, TaskCreate
 
 
 class TaskRepository:
-    def __init__(self, db):
+    def __init__(self, db: Session):
         self._db = db
 
-    def list_tasks(self):
-        tasks = self._db.query(TaskModel).all()
+    def list_tasks(
+        self,
+        filter_by: str | None = None,
+        order: str = "asc",
+        limit: int | None = None,
+        offset: int | None = None,
+    ) -> list[TaskSchema]:
+        stmt = select(TaskModel)
+
+        if filter_by == "completed":
+            stmt = stmt.where(TaskModel.is_completed.is_(True))
+        elif filter_by == "pending":
+            stmt = stmt.where(TaskModel.is_completed.is_(False))
+
+        if order == "desc":
+            stmt = stmt.order_by(desc(TaskModel.created_at))
+        else:
+            stmt = stmt.order_by(asc(TaskModel.created_at))
+
+        if offset is not None:
+            stmt = stmt.offset(offset)
+        if limit is not None:
+            stmt = stmt.limit(limit)
+
+        tasks = self._db.execute(stmt).scalars().all()
+
         return [TaskSchema.model_validate(task) for task in tasks]
 
     def create_task(self, task_data: TaskCreate) -> TaskSchema:
@@ -29,14 +55,15 @@ class TaskRepository:
         self, task_id: uuid.UUID, task_data: TaskSchema
     ) -> TaskSchema | None:
         task = self._db.query(TaskModel).filter(TaskModel.id == task_id).first()
-        if task:
-            task.title = task_data.title
-            task.description = task_data.description
-            task.is_completed = task_data.is_completed
-            self._db.commit()
-            self._db.refresh(task)
-            return TaskSchema.model_validate(task)
-        return None
+        if task is None:
+            return None
+
+        task.title = task_data.title
+        task.description = task_data.description
+        task.is_completed = task_data.is_completed
+        self._db.commit()
+        self._db.refresh(task)
+        return TaskSchema.model_validate(task)
 
     def delete_task(self, task_id: uuid.UUID) -> TaskSchema | None:
         task = self._db.query(TaskModel).filter(TaskModel.id == task_id).first()

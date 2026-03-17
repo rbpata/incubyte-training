@@ -11,8 +11,10 @@ class TaskService:
     def __init__(self, task_repository: TaskRepository) -> None:
         self._task_repository = task_repository
 
-    def list_tasks(self) -> list[Task]:
-        return self._task_repository.list_tasks()
+    def list_tasks(self, filter_by=None, order="asc", limit=None, offset=None):
+        return self._task_repository.list_tasks(
+            filter_by=filter_by, order=order, limit=limit, offset=offset
+        )
 
     def create_task(self, task_data: TaskCreate) -> Task:
         return self._task_repository.create_task(task_data)

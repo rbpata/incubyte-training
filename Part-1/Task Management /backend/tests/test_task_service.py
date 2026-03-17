@@ -28,7 +28,7 @@ def test_task_service_list_tasks(task_service_instance, mock_task_repository):
     result = task_service_instance.list_tasks()
 
     assert result == mock_tasks
-    mock_task_repository.list_tasks.assert_called_once_with()
+    mock_task_repository.list_tasks.assert_called_once()
 
 
 def test_task_service_create_task(task_service_instance, mock_task_repository):
@@ -120,3 +120,23 @@ def test_task_service_delete_task_not_found(
         task_service_instance.delete_task(task_id)
 
     mock_task_repository.delete_task.assert_called_once_with(task_id=task_id)
+
+
+def test_task_service_update_task_not_found(
+    task_service_instance, mock_task_repository
+):
+    task_id = uuid.uuid4()
+    updated_data = Task(
+        title="Missing",
+        description="Does not exist",
+        is_completed=False,
+    )
+    mock_task_repository.update_task.return_value = None
+
+    with pytest.raises(TaskNotFoundError):
+        task_service_instance.update_task(task_id, updated_data)
+
+    mock_task_repository.update_task.assert_called_once_with(
+        task_id=task_id,
+        task_data=updated_data,
+    )
