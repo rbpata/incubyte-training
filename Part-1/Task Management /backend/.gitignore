@@ -57,3 +57,7 @@ logs/
 
 # Jupyter
 .ipynb_checkpoints/
+
+
+# database
+test.db
