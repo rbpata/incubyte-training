@@ -1,0 +1,31 @@
+.venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.db
+*.sqlite3   
+.DS_Store
+.idea/
+.vscode/
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+*.env
+.env.*
+*.egg-info/
+dist/
+build/
+*.egg   
+# Ignore virtual environment directories
+venv/
+env/    
+
+
+# images
+
+uploads/
+
+.DS_Store
