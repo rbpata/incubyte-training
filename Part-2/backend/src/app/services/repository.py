@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,7 +27,9 @@ class TaskRepository:
         return task
 
     async def get_by_id(self, task_id: int) -> Task | None:
-        return await self.session.get(Task, task_id)
+        query = select(Task).where(Task.id == task_id, Task.deleted_at.is_(None))
+        result = await self.session.execute(query)
+        return result.scalar_one_or_none()
 
     async def find_tasks(
         self,
@@ -36,7 +40,7 @@ class TaskRepository:
         page: int = 1,
         size: int = 10,
     ) -> tuple[list[Task], int]:
-        query = select(Task)
+        query = select(Task).where(Task.deleted_at.is_(None))
 
         if status is not None:
             query = query.where(Task.status == status)
@@ -44,16 +48,20 @@ class TaskRepository:
         if search:
             search_filter = f"%{search}%"
             query = query.where(
-                (Task.title.ilike(search_filter)) | (Task.description.ilike(search_filter))
+                (Task.title.ilike(search_filter))
+                | (Task.description.ilike(search_filter))
             )
 
-        count_query = select(func.count()).select_from(Task)
+        count_query = (
+            select(func.count()).select_from(Task).where(Task.deleted_at.is_(None))
+        )
         if status is not None:
             count_query = count_query.where(Task.status == status)
         if search:
             search_filter = f"%{search}%"
             count_query = count_query.where(
-                (Task.title.ilike(search_filter)) | (Task.description.ilike(search_filter))
+                (Task.title.ilike(search_filter))
+                | (Task.description.ilike(search_filter))
             )
         total = await self.session.scalar(count_query)
 
@@ -77,5 +85,5 @@ class TaskRepository:
         return task
 
     async def delete(self, task: Task) -> None:
-        await self.session.delete(task)
+        task.deleted_at = datetime.now(timezone.utc)
         await self.session.commit()

@@ -10,7 +10,9 @@ def parse_iso_datetime(value: str) -> datetime:
 
 class TestCreateTaskIntegration:
     @pytest.mark.anyio
-    async def test_create_task_returns_201_when_valid(self, async_test_client: AsyncClient) -> None:
+    async def test_create_task_returns_201_when_valid(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
 
         response = await async_test_client.post(
@@ -34,7 +36,9 @@ class TestCreateTaskIntegration:
         assert task["retry_count"] == 0
 
     @pytest.mark.anyio
-    async def test_create_task_sets_default_priority(self, async_test_client: AsyncClient) -> None:
+    async def test_create_task_sets_default_priority(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 2, 1, 10, 0, tzinfo=timezone.utc).isoformat()
 
         response = await async_test_client.post(
@@ -52,7 +56,9 @@ class TestCreateTaskIntegration:
         assert task["priority"] == "medium"
 
     @pytest.mark.anyio
-    async def test_create_task_rejects_missing_timezone(self, async_test_client: AsyncClient) -> None:
+    async def test_create_task_rejects_missing_timezone(
+        self, async_test_client: AsyncClient
+    ) -> None:
         response = await async_test_client.post(
             "/tasks",
             json={
@@ -68,7 +74,9 @@ class TestCreateTaskIntegration:
 
 class TestGetTaskIntegration:
     @pytest.mark.anyio
-    async def test_get_task_returns_200_when_exists(self, async_test_client: AsyncClient) -> None:
+    async def test_get_task_returns_200_when_exists(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
         create_response = await async_test_client.post(
             "/tasks",
@@ -89,7 +97,9 @@ class TestGetTaskIntegration:
         assert task["title"] == "Test task"
 
     @pytest.mark.anyio
-    async def test_get_task_returns_404_when_missing(self, async_test_client: AsyncClient) -> None:
+    async def test_get_task_returns_404_when_missing(
+        self, async_test_client: AsyncClient
+    ) -> None:
         response = await async_test_client.get("/tasks/99999")
 
         assert response.status_code == 404
@@ -97,7 +107,9 @@ class TestGetTaskIntegration:
 
 class TestListTasksIntegration:
     @pytest.mark.anyio
-    async def test_list_tasks_returns_empty_when_no_tasks(self, async_test_client: AsyncClient) -> None:
+    async def test_list_tasks_returns_empty_when_no_tasks(
+        self, async_test_client: AsyncClient
+    ) -> None:
         response = await async_test_client.get("/tasks")
 
         assert response.status_code == 200
@@ -107,9 +119,11 @@ class TestListTasksIntegration:
         assert data["pages"] == 0
 
     @pytest.mark.anyio
-    async def test_list_tasks_with_pagination(self, async_test_client: AsyncClient) -> None:
+    async def test_list_tasks_with_pagination(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
-        
+
         for i in range(15):
             await async_test_client.post(
                 "/tasks",
@@ -135,7 +149,7 @@ class TestListTasksIntegration:
     @pytest.mark.anyio
     async def test_list_tasks_with_search(self, async_test_client: AsyncClient) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
-        
+
         await async_test_client.post(
             "/tasks",
             json={
@@ -157,15 +171,17 @@ class TestListTasksIntegration:
 
         response = await async_test_client.get("/tasks?search=email")
         data = response.json()
-        
+
         assert data["total"] == 1
         assert len(data["items"]) == 1
         assert "email" in data["items"][0]["title"].lower()
 
     @pytest.mark.anyio
-    async def test_list_tasks_with_status_filter(self, async_test_client: AsyncClient) -> None:
+    async def test_list_tasks_with_status_filter(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
-        
+
         response1 = await async_test_client.post(
             "/tasks",
             json={
@@ -186,20 +202,24 @@ class TestListTasksIntegration:
         )
 
         task_id = response2.json()["id"]
-        await async_test_client.patch(f"/tasks/{task_id}/status", json={"status": "completed"})
+        await async_test_client.patch(
+            f"/tasks/{task_id}/status", json={"status": "completed"}
+        )
 
         response = await async_test_client.get("/tasks?status=completed")
         data = response.json()
-        
+
         assert data["total"] == 1
         assert len(data["items"]) == 1
         assert data["items"][0]["status"] == "completed"
 
     @pytest.mark.anyio
-    async def test_list_tasks_with_sorting(self, async_test_client: AsyncClient) -> None:
+    async def test_list_tasks_with_sorting(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at1 = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
         run_at2 = datetime(2030, 6, 1, 12, 0, tzinfo=timezone.utc).isoformat()
-        
+
         await async_test_client.post(
             "/tasks",
             json={
@@ -221,14 +241,18 @@ class TestListTasksIntegration:
 
         response = await async_test_client.get("/tasks?sort_by=run_at&sort_order=asc")
         data = response.json()
-        
+
         assert len(data["items"]) == 2
-        assert parse_iso_datetime(data["items"][0]["run_at"]) < parse_iso_datetime(data["items"][1]["run_at"])
+        assert parse_iso_datetime(data["items"][0]["run_at"]) < parse_iso_datetime(
+            data["items"][1]["run_at"]
+        )
 
 
 class TestUpdateTaskStatusIntegration:
     @pytest.mark.anyio
-    async def test_update_task_status_returns_200_when_valid(self, async_test_client: AsyncClient) -> None:
+    async def test_update_task_status_returns_200_when_valid(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
         create_response = await async_test_client.post(
             "/tasks",
@@ -251,7 +275,9 @@ class TestUpdateTaskStatusIntegration:
         assert task["status"] == "running"
 
     @pytest.mark.anyio
-    async def test_update_task_status_returns_404_when_missing(self, async_test_client: AsyncClient) -> None:
+    async def test_update_task_status_returns_404_when_missing(
+        self, async_test_client: AsyncClient
+    ) -> None:
         response = await async_test_client.patch(
             "/tasks/99999/status",
             json={"status": "running"},
@@ -262,7 +288,9 @@ class TestUpdateTaskStatusIntegration:
 
 class TestDeleteTaskIntegration:
     @pytest.mark.anyio
-    async def test_delete_task_returns_204_when_exists(self, async_test_client: AsyncClient) -> None:
+    async def test_delete_task_returns_204_when_exists(
+        self, async_test_client: AsyncClient
+    ) -> None:
         run_at = datetime(2030, 1, 1, 12, 0, tzinfo=timezone.utc).isoformat()
         create_response = await async_test_client.post(
             "/tasks",
@@ -283,7 +311,9 @@ class TestDeleteTaskIntegration:
         assert get_response.status_code == 404
 
     @pytest.mark.anyio
-    async def test_delete_task_returns_404_when_missing(self, async_test_client: AsyncClient) -> None:
+    async def test_delete_task_returns_404_when_missing(
+        self, async_test_client: AsyncClient
+    ) -> None:
         response = await async_test_client.delete("/tasks/99999")
 
         assert response.status_code == 404

@@ -1,12 +1,11 @@
 from logging.config import fileConfig
+import os
+import sys
 
+from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
-
-from app.db.base import Base
-from app.core.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,8 +16,22 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set target metadata for autogenerate support
+# add your model's MetaData object here
+# for 'autogenerate' support
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
+
+from app.db import Base
+
 target_metadata = Base.metadata
+
+# other values from the config, defined by the needs of env.py,
+# can be acquired:
+# my_important_option = config.get_main_option("my_important_option")
+# ... etc.
 
 
 def run_migrations_offline() -> None:
@@ -33,7 +46,7 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = settings.database_url
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
@@ -52,31 +65,17 @@ def run_migrations_online() -> None:
     and associate a connection with the context.
 
     """
-    configuration = {
-        "sqlalchemy.url": settings.database_url,
-        "sqlalchemy.poolclass": pool.NullPool,
-    }
-
-    connectable = async_engine_from_config(
-        configuration,
+    connectable = engine_from_config(
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
 
-    async def do_run_migrations():
-        async with connectable.begin() as connection:
-            await connection.run_sync(
-                lambda conn: context.configure(connection=conn, target_metadata=target_metadata)
-            )
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata)
 
-            with context.begin_transaction():
-                await connection.run_sync(context.run_migrations)
-
-        await connectable.dispose()
-
-    import asyncio
-
-    asyncio.run(do_run_migrations())
+        with context.begin_transaction():
+            context.run_migrations()
 
 
 if context.is_offline_mode():

@@ -14,7 +14,9 @@ router = APIRouter(prefix="/tasks", tags=["tasks"])
 def create_tasks_router() -> APIRouter:
     tasks_router = APIRouter()
 
-    @tasks_router.post("/tasks", response_model=TaskRead, status_code=status.HTTP_201_CREATED)
+    @tasks_router.post(
+        "/tasks", response_model=TaskRead, status_code=status.HTTP_201_CREATED
+    )
     async def create_task(
         payload: TaskCreate,
         service: TaskService = Depends(provide_service),
@@ -26,7 +28,9 @@ def create_tasks_router() -> APIRouter:
     async def list_tasks(
         status: TaskStatus | None = None,
         search: str | None = Query(None, min_length=1),
-        sort_by: str = Query("created_at", pattern="^(created_at|run_at|status|priority)$"),
+        sort_by: str = Query(
+            "created_at", pattern="^(created_at|run_at|status|priority)$"
+        ),
         sort_order: str = Query("desc", pattern="^(asc|desc)$"),
         page: int = Query(1, ge=1),
         size: int = Query(10, ge=1, le=100),
@@ -74,12 +78,16 @@ def create_tasks_router() -> APIRouter:
         await service.delete_task(task_id)
         return Response(status_code=status.HTTP_204_NO_CONTENT)
 
-    @tasks_router.post("/tasks/{task_id}/process", response_model=dict, status_code=status.HTTP_202_ACCEPTED)
+    @tasks_router.post(
+        "/tasks/{task_id}/process",
+        response_model=dict,
+        status_code=status.HTTP_202_ACCEPTED,
+    )
     async def process_task_background(
         task_id: int,
         background_tasks: BackgroundTasks,
-        processor = Depends(provide_job_processor),
-        session = Depends(get_session),
+        processor=Depends(provide_job_processor),
+        session=Depends(get_session),
     ) -> dict:
         background_tasks.add_task(processor.process_task, task_id, session)
         return {"status": "processing", "task_id": task_id}
