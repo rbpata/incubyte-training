@@ -1,0 +1,10 @@
+[project]
+name = "day-4"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "memory-profiler>=0.61.0",
+    "numpy>=2.4.4",
+]
