@@ -1,0 +1,1 @@
+DOCKER_HOST=unix:///Users/rpata/.rd/docker.sock TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock TESTCONTAINERS_HOST_OVERRIDE=192.168.64.2 /Users/rpata/incubyte/training/Part-2/Day-5/.venv/bin/python -m pytest -q /Users/rpata/incubyte/training/Part-2/Day-5/tests/test_container.py

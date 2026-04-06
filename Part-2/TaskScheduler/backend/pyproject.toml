@@ -23,18 +23,25 @@ dev = [
     "alembic>=1.18.4",
     "asgi-lifespan>=2.1.0",
     "coverage>=7.13.5",
+    "hypothesis>=6.140.0",
     "httpx>=0.28.1",
     "memory-profiler>=0.61.0",
+    "mutmut>=3.4.0",
     "numpy>=2.3.0",
     "pytest>=8.4.2",
     "pytest-asyncio>=1.2.0",
     "pytest-cov>=7.1.0",
+    "testcontainers[postgres]>=4.13.0",
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
 asyncio_mode = "auto"
+markers = [
+    "container: tests that require docker/testcontainers",
+    "mutation: tests used for mutation testing workflows",
+]
 
 [project.scripts]
 task-scheduler = "app:main"

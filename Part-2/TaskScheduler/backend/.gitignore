@@ -44,6 +44,7 @@ logs/
 
 # Temporary and cache files
 .pytest_cache/
+.hypothesis/
 .coverage
 htmlcov/
 .tox/
