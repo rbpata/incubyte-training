@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Enum, Index, Integer, String, Text, func
+from sqlalchemy import Enum, Index, Integer, String, Text, func, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base, UTCDateTime, TaskStatus, TaskPriority
@@ -12,6 +12,7 @@ def _enum_values(enum_class: type[TaskStatus] | type[TaskPriority]) -> list[str]
 class Task(Base):
     __tablename__ = "tasks"
     __table_args__ = (
+        Index("ix_tasks_user_id", "user_id"),
         Index("ix_tasks_status", "status"),
         Index("ix_tasks_priority", "priority"),
         Index("ix_tasks_run_at", "run_at"),
@@ -20,6 +21,9 @@ class Task(Base):
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     run_at: Mapped[datetime] = mapped_column(UTCDateTime(), nullable=False)

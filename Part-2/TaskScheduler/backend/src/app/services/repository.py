@@ -12,8 +12,9 @@ class TaskRepository:
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
-    async def create(self, task_data: TaskCreate) -> Task:
+    async def create(self, task_data: TaskCreate, user_id: int) -> Task:
         task = Task(
+            user_id=user_id,
             title=task_data.title,
             description=task_data.description,
             run_at=task_data.run_at,
@@ -33,6 +34,7 @@ class TaskRepository:
 
     async def find_tasks(
         self,
+        user_id: int,
         status: TaskStatus | None = None,
         search: str | None = None,
         sort_by: str = "created_at",
@@ -40,7 +42,7 @@ class TaskRepository:
         page: int = 1,
         size: int = 10,
     ) -> tuple[list[Task], int]:
-        query = select(Task).where(Task.deleted_at.is_(None))
+        query = select(Task).where(Task.deleted_at.is_(None), Task.user_id == user_id)
 
         if status is not None:
             query = query.where(Task.status == status)
@@ -53,7 +55,12 @@ class TaskRepository:
             )
 
         count_query = (
-            select(func.count()).select_from(Task).where(Task.deleted_at.is_(None))
+            select(func.count())
+            .select_from(Task)
+            .where(
+                Task.deleted_at.is_(None),
+                Task.user_id == user_id,
+            )
         )
         if status is not None:
             count_query = count_query.where(Task.status == status)

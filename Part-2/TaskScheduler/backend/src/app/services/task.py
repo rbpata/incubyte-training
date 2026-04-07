@@ -13,8 +13,8 @@ class TaskService:
     ) -> None:
         self.repository = repository
 
-    async def create_task(self, task_data: TaskCreate) -> Task:
-        task = await self.repository.create(task_data)
+    async def create_task(self, task_data: TaskCreate, user_id: int) -> Task:
+        task = await self.repository.create(task_data, user_id)
         return task
 
     async def get_task(self, task_id: int) -> Task:
@@ -28,6 +28,7 @@ class TaskService:
 
     async def list_tasks(
         self,
+        user_id: int,
         status_filter: TaskStatus | None = None,
         search: str | None = None,
         sort_by: str = "created_at",
@@ -36,6 +37,7 @@ class TaskService:
         size: int = 10,
     ) -> tuple[list[Task], int]:
         return await self.repository.find_tasks(
+            user_id=user_id,
             status=status_filter,
             search=search,
             sort_by=sort_by,
