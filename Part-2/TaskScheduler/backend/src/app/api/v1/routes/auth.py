@@ -41,7 +41,6 @@ def create_auth_router() -> APIRouter:
         payload: UserRegister,
         service: AuthService = Depends(provide_auth_service),
     ) -> UserResponse:
-        """Register new user."""
         try:
             user = await service.register_user(payload)
             await service.session.commit()
@@ -57,7 +56,6 @@ def create_auth_router() -> APIRouter:
         payload: UserLogin,
         service: AuthService = Depends(provide_auth_service),
     ) -> TokenResponse:
-        """Login user and return access/refresh tokens."""
         try:
             token_response = await service.login_user(payload)
             await service.session.commit()
@@ -73,7 +71,6 @@ def create_auth_router() -> APIRouter:
         payload: RefreshTokenRequest,
         service: AuthService = Depends(provide_auth_service),
     ) -> TokenResponse:
-        """Refresh access token using refresh token."""
         try:
             token_response = await service.refresh_access_token(payload)
             return token_response
@@ -88,7 +85,6 @@ def create_auth_router() -> APIRouter:
         payload: RefreshTokenRequest,
         service: AuthService = Depends(provide_auth_service),
     ) -> None:
-        """Logout user by revoking refresh token."""
         try:
             await service.revoke_refresh_token(payload.refresh_token)
             await service.session.commit()
@@ -100,7 +96,6 @@ def create_auth_router() -> APIRouter:
         current_user: User = Depends(get_current_user),
         _: None = Depends(rate_limit_dependency),
     ) -> UserResponse:
-        """Get current user info."""
         return UserResponse.model_validate(current_user)
 
     @auth_router.post(
@@ -114,7 +109,6 @@ def create_auth_router() -> APIRouter:
         service: AuthService = Depends(provide_auth_service),
         _: None = Depends(rate_limit_dependency),
     ) -> ApiKeyCreateResponse:
-        """Create API key for external access."""
         plaintext_key, api_key_record = await service.create_api_key(
             current_user.id,
             payload.name,
@@ -134,7 +128,6 @@ def create_auth_router() -> APIRouter:
         service: AuthService = Depends(provide_auth_service),
         _: None = Depends(rate_limit_dependency),
     ) -> list[ApiKeyResponse]:
-        """List user's API keys."""
         from sqlalchemy import select
         from app.models.api_key import ApiKey
 

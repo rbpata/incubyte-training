@@ -43,7 +43,6 @@ def create_tasks_router() -> APIRouter:
         service: TaskService = Depends(provide_service),
         _: None = Depends(rate_limit_dependency),
     ) -> TaskRead:
-        """Create task for current user."""
         task = await service.create_task(payload, user_id=current_user.id)
         return TaskRead.model_validate(task)
 
@@ -61,7 +60,6 @@ def create_tasks_router() -> APIRouter:
         service: TaskService = Depends(provide_service),
         _: None = Depends(rate_limit_dependency),
     ) -> PaginatedTaskRead:
-        """List tasks for current user."""
         tasks, total = await service.list_tasks(
             user_id=current_user.id,
             status_filter=status_filter,
@@ -87,7 +85,6 @@ def create_tasks_router() -> APIRouter:
         session: AsyncSession = Depends(get_session),
         _: None = Depends(rate_limit_dependency),
     ) -> TaskRead:
-        """Get specific task (must own it)."""
         task = await session.execute(
             select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
         )
@@ -108,7 +105,6 @@ def create_tasks_router() -> APIRouter:
         session: AsyncSession = Depends(get_session),
         _: None = Depends(rate_limit_dependency),
     ) -> TaskRead:
-        """Update task status (must own it)."""
         task = await session.execute(
             select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
         )
@@ -130,7 +126,6 @@ def create_tasks_router() -> APIRouter:
         session: AsyncSession = Depends(get_session),
         _: None = Depends(rate_limit_dependency),
     ) -> Response:
-        """Delete task (must own it)."""
         task = await session.execute(
             select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
         )
@@ -157,7 +152,6 @@ def create_tasks_router() -> APIRouter:
         session: AsyncSession = Depends(get_session),
         _: None = Depends(rate_limit_dependency),
     ) -> dict:
-        """Process task in background (must own it)."""
         task = await session.execute(
             select(Task).where(Task.id == task_id, Task.user_id == current_user.id)
         )

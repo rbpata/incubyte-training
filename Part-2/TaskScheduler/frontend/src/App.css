@@ -1,0 +1,45 @@
+/* App-specific styles — extends index.css Tailwind base */
+
+.app-shell {
+  @apply w-full max-w-4xl mx-auto px-4 py-8;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    @apply px-6 py-12;
+  }
+}
+
+.hero-glass {
+  @apply glass-card p-8 mb-8 relative overflow-hidden;
+}
+
+@media (min-width: 768px) {
+  .hero-glass {
+    @apply p-10;
+  }
+}
+
+.hero-glass h1 {
+  @apply text-3xl font-bold text-gradient mb-2;
+}
+
+@media (min-width: 768px) {
+  .hero-glass h1 {
+    @apply text-4xl;
+  }
+}
+
+.hero-glass p {
+  @apply text-gray-600 text-base;
+}
+
+.priority-high  { border-left: 4px solid #ef4444; }
+.priority-medium { border-left: 4px solid #3b82f6; }
+.priority-low   { border-left: 4px solid #10b981; }
+
+.task-grid { margin-top: 0; }
+
+.loading-spinner {
+  @apply inline-block w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin;
+}

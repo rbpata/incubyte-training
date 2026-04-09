@@ -8,34 +8,31 @@ from app.core.config import settings
 
 
 class PasswordHasher:
-    """Handles password hashing and verification with bcrypt."""
+    """Handles password hashing and verification using bcrypt."""
 
     @staticmethod
     def hash(password: str) -> str:
-        """Hash password with bcrypt and salt."""
         salt = gensalt(rounds=settings.bcrypt_rounds)
         hashed = hashpw(password.encode(), salt)
         return hashed.decode()
 
     @staticmethod
     def verify(password: str, hashed: str) -> bool:
-        """Verify password against hash."""
         return checkpw(password.encode(), hashed.encode())
 
 
 class TokenManager:
-    """Manages JWT creation and validation."""
+    """Manages JWT token creation and validation."""
 
     @staticmethod
     def create_access_token(user_id: int, role: str) -> str:
-        """Create JWT access token."""
-        expire = datetime.now(timezone.utc) + timedelta(
+        expiration_time = datetime.now(timezone.utc) + timedelta(
             minutes=settings.access_token_expire_minutes
         )
         payload = {
             "sub": str(user_id),
             "role": role,
-            "exp": expire,
+            "exp": expiration_time,
             "iat": datetime.now(timezone.utc),
             "type": "access",
         }
@@ -47,13 +44,12 @@ class TokenManager:
 
     @staticmethod
     def create_refresh_token(user_id: int) -> str:
-        """Create JWT refresh token."""
-        expire = datetime.now(timezone.utc) + timedelta(
+        expiration_time = datetime.now(timezone.utc) + timedelta(
             days=settings.refresh_token_expire_days
         )
         payload = {
             "sub": str(user_id),
-            "exp": expire,
+            "exp": expiration_time,
             "iat": datetime.now(timezone.utc),
             "type": "refresh",
         }
@@ -65,7 +61,7 @@ class TokenManager:
 
     @staticmethod
     def decode_token(token: str) -> dict[str, Any]:
-        """Decode and validate JWT token."""
+        """Decodes and validates JWT token, raising ValueError on invalid tokens."""
         if not token or not token.strip():
             raise ValueError("Token is empty")
 
@@ -89,7 +85,6 @@ class TokenManager:
 
     @staticmethod
     def extract_user_id(token: str) -> int:
-        """Extract user ID from token."""
         payload = TokenManager.decode_token(token)
         user_id = payload.get("sub")
         if not user_id:
@@ -101,7 +96,6 @@ class TokenManager:
 
     @staticmethod
     def extract_role(token: str) -> str:
-        """Extract role from access token."""
         payload = TokenManager.decode_token(token)
         token_type = payload.get("type")
         if token_type != "access":

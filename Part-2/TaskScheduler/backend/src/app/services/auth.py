@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -34,7 +34,6 @@ class AuthService:
         self.session = session
 
     async def register_user(self, payload: UserRegister) -> User:
-        """Register a new user."""
         existing_user = await self.session.execute(
             select(User).where(User.email == payload.email)
         )
@@ -56,7 +55,6 @@ class AuthService:
         return user
 
     async def login_user(self, payload: UserLogin) -> TokenResponse:
-        """Authenticate user and return tokens."""
         user = await self.session.execute(
             select(User).where(User.email == payload.email)
         )
@@ -81,7 +79,6 @@ class AuthService:
         )
 
     async def refresh_access_token(self, payload: RefreshTokenRequest) -> TokenResponse:
-        """Create new access token from refresh token."""
         try:
             user_id = TokenManager.extract_user_id(payload.refresh_token)
         except ValueError as e:
@@ -109,7 +106,6 @@ class AuthService:
         )
 
     async def get_user_by_id(self, user_id: int) -> User:
-        """Get user by ID."""
         user = await self.session.execute(select(User).where(User.id == user_id))
         user_obj = user.scalar_one_or_none()
         if not user_obj:
@@ -117,20 +113,18 @@ class AuthService:
         return user_obj
 
     async def _store_refresh_token_in_database(self, user_id: int, token: str) -> None:
-        """Store refresh token in database."""
-        expire = datetime.now(timezone.utc) + __import__("datetime").timedelta(
+        token_expiration_time = datetime.now(timezone.utc) + timedelta(
             days=settings.refresh_token_expire_days
         )
         refresh_token = RefreshToken(
             user_id=user_id,
             token=token,
-            expires_at=expire,
+            expires_at=token_expiration_time,
         )
         self.session.add(refresh_token)
         await self.session.flush()
 
     async def revoke_refresh_token(self, token: str) -> None:
-        """Revoke a refresh token (logout)."""
         token_record = await self.session.execute(
             select(RefreshToken).where(RefreshToken.token == token)
         )
@@ -140,11 +134,7 @@ class AuthService:
             await self.session.flush()
 
     async def create_api_key(self, user_id: int, name: str) -> tuple[str, ApiKey]:
-        """Create API key for external access.
-
-        Returns: (key_plaintext, key_record)
-        Note: key_plaintext is only returned once, store it securely.
-        """
+        """Creates and stores API key. Key plaintext is only returned once."""
         import secrets
         import hashlib
 
@@ -164,10 +154,7 @@ class AuthService:
         return plaintext_key, api_key
 
     async def validate_api_key(self, key: str) -> int:
-        """Validate API key and return user_id.
-
-        Raises: ValueError if key is invalid/inactive.
-        """
+        """Validates API key and returns user_id, raises ValueError if invalid."""
         import hashlib
 
         key_hash = hashlib.sha256(key.encode()).hexdigest()

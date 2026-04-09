@@ -46,7 +46,7 @@ class ApiKeyResponse(BaseModel):
 
 
 class ApiKeyCreateResponse(BaseModel):
-    """Response when creating API key - includes the key itself (only shown once)."""
+    """Returns the plaintext key only upon creation; never shown again."""
 
     id: int
     name: str
