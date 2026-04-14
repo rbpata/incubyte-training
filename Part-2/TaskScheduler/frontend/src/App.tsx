@@ -1,11 +1,3 @@
-/**
- * Main App component with:
- * - Context providers (Auth, Tasks)
- * - Error boundary with enhanced error handling
- * - Lazy loaded pages for code splitting
- * - Liquid glass UI with Tailwind CSS
- */
-
 import {lazy, Suspense, useEffect} from 'react';
 import {AuthProvider, useAuth} from './contexts/AuthContext';
 import {TasksProvider} from './contexts/TasksContext';
@@ -13,7 +5,6 @@ import {ErrorBoundary, LoadingSpinner} from './components';
 import {useAuthApi} from './hooks/useAuthApi';
 import './App.css';
 
-// Lazy load pages for code splitting
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const TasksPage = lazy(() => import('./pages/TasksPage'));
 
@@ -21,7 +12,6 @@ function AppContent() {
     const {isLoggedIn} = useAuth();
     const {restoreSession} = useAuthApi();
 
-    // Restore session from localStorage on mount
     useEffect(() => {
         restoreSession();
     }, [restoreSession]);

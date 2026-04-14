@@ -15,7 +15,7 @@ type AsyncAction<T, E> =
   | { type: 'RESET' }
 
 function createAsyncReducer<T, E>(
-  state: AsyncState<T, E>,
+  _state: AsyncState<T, E>,
   action: AsyncAction<T, E>
 ): AsyncState<T, E> {
   switch (action.type) {

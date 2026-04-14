@@ -3,6 +3,10 @@ import type { ApiError } from '../types/index'
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? ''
 const REQUEST_TIMEOUT_MS = 30000
 
+function generateCorrelationId(): string {
+  return crypto.randomUUID()
+}
+
 export class ApiClient {
   private static instance: ApiClient
 
@@ -27,6 +31,7 @@ export class ApiClient {
         ...init,
         headers: {
           'Content-Type': 'application/json',
+          'X-Correlation-ID': generateCorrelationId(),
           ...(init?.headers ?? {}),
         },
         signal: controller.signal,

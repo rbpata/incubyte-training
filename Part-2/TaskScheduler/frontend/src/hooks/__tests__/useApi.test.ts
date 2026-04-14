@@ -23,20 +23,24 @@ describe('useApi', () => {
   })
 
   it('sets loading state during API call', async () => {
-    const mockResponse = { id: 1, name: 'test' }
-    vi.mocked(apiClient.request).mockResolvedValue(mockResponse)
+    let resolveRequest!: (value: unknown) => void
+    vi.mocked(apiClient.request).mockImplementation(
+      () => new Promise((resolve) => { resolveRequest = resolve })
+    )
 
     const { result } = renderHook(() => useApi())
 
-    const promise = result.current.execute('/test')
+    result.current.execute('/test')
 
-    expect(result.current.loading).toBe(true)
+    await waitFor(() => {
+      expect(result.current.loading).toBe(true)
+    })
+
+    resolveRequest({ id: 1, name: 'test' })
 
     await waitFor(() => {
       expect(result.current.loading).toBe(false)
     })
-
-    await promise
   })
 
   it('updates data on success', async () => {

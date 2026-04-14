@@ -1,12 +1,3 @@
-/**
- * TasksPage - Main tasks management page
- * - Advanced React patterns: Context API, useReducer, custom hooks
- * - Code splitting with lazy loading
- * - Virtual scrolling for large task lists
- * - Error boundaries and error handling
- * - Performance optimized with React.memo and useMemo
- */
-
 import {useState, useCallback, useEffect, useMemo} from 'react';
 import {useTasksApi} from '../hooks/useTasksApi';
 import {useTasks} from '../contexts/TasksContext';
@@ -26,7 +17,6 @@ export function TasksPage() {
     const {items: tasks, filters} = useTasks();
     const {user, logout} = useAuth();
 
-    // Create task form state
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [runAt, setRunAt] = useState('');
@@ -37,7 +27,6 @@ export function TasksPage() {
     const [localError, setLocalError] = useState('');
     const [showCreateForm, setShowCreateForm] = useState(false);
 
-    // Load initial tasks
     useEffect(() => {
         const initialFilters: TaskFilters = {
             search: '',
@@ -50,12 +39,16 @@ export function TasksPage() {
         void loadTasks(initialFilters);
     }, [loadTasks]);
 
-    // Handle search with debouncing
+    const filtersRef = useRef(filters);
+    useEffect(() => {
+        filtersRef.current = filters;
+    }, [filters]);
+
     const handleSearch = useCallback(
         (query: string) => {
-            void loadTasks({...filters, search: query, page: 1});
+            void loadTasks({...filtersRef.current, search: query, page: 1});
         },
-        [loadTasks, filters]
+        [loadTasks]
     );
 
     const handleStatusChange = useCallback(
@@ -80,7 +73,6 @@ export function TasksPage() {
             setCreateError('');
             setLocalError('');
 
-            // Validation
             if (!title.trim()) {
                 setCreateError('Task title is required');
                 return;
@@ -161,7 +153,6 @@ export function TasksPage() {
         [processTask, loadTasks, filters]
     );
 
-    // Memoize task statistics
     const taskStats = useMemo(() => {
         const completed = tasks.filter((t) => t.status === 'completed').length;
         const pending = tasks.filter((t) => t.status === 'pending').length;

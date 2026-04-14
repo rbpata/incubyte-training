@@ -1,10 +1,3 @@
-/**
- * TaskList - List of tasks with optional virtual scrolling
- * - Uses useMemo to prevent unnecessary re-renders
- * - Responsive list rendering for various dataset sizes
- * - Performance optimized with Tailwind CSS
- */
-
 import {memo, useMemo} from 'react';
 import {TaskItem} from './TaskItem';
 import {Skeleton} from './ui';
@@ -26,7 +19,6 @@ function TaskListComponent({
     onProcess,
     onDelete
 }: TaskListProps) {
-    // Memoize task elements to prevent unnecessary re-renders
     const taskElements = useMemo(() => {
         return tasks.map((task) => (
             <TaskItem
@@ -57,7 +49,6 @@ function TaskListComponent({
         );
     }
 
-    // Standard list rendering - virtualization can be added later if needed
     return <div className='task-grid space-y-4'>{taskElements}</div>;
 }
 

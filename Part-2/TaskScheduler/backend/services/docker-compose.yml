@@ -1,0 +1,77 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: ms_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: auth_service_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - ms_postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth-service:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: ms_auth_service
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/auth_service_db
+      SECRET_KEY: change-me-in-production-use-a-long-random-string
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8001
+      PYTHONPATH: /app/src
+    ports:
+      - "8001:8001"
+
+  task-service:
+    build:
+      context: ./task-service
+      dockerfile: Dockerfile
+    container_name: ms_task_service
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/task_service_db
+      SECRET_KEY: change-me-in-production-use-a-long-random-string
+      LOG_LEVEL: INFO
+      HOST: 0.0.0.0
+      PORT: 8002
+      PYTHONPATH: /app/src
+    ports:
+      - "8002:8002"
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: ms_api_gateway
+    restart: always
+    depends_on:
+      - auth-service
+      - task-service
+    environment:
+      AUTH_SERVICE_URL: http://auth-service:8001
+      TASK_SERVICE_URL: http://task-service:8002
+    ports:
+      - "8000:8000"
+
+volumes:
+  ms_postgres_data:

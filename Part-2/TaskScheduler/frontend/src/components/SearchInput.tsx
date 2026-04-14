@@ -1,11 +1,4 @@
-/**
- * SearchInput - Search input with debouncing
- * - Prevents excessive API calls while user is typing
- * - Uses Tailwind CSS for styling
- * - Includes clear button and search icon
- */
-
-import {memo, useState, useCallback, useEffect} from 'react';
+import {memo, useState, useCallback, useEffect, useRef} from 'react';
 import {useDebounce} from '../hooks/useDebounce';
 
 interface SearchInputProps {
@@ -23,11 +16,15 @@ function SearchInputComponent({
 }: SearchInputProps) {
     const [inputValue, setInputValue] = useState('');
     const debouncedValue = useDebounce(inputValue, debounceDelay);
+    const onSearchRef = useRef(onSearch);
 
-    // Execute search when debounced value changes
     useEffect(() => {
-        onSearch(debouncedValue);
-    }, [debouncedValue, onSearch]);
+        onSearchRef.current = onSearch;
+    });
+
+    useEffect(() => {
+        onSearchRef.current(debouncedValue);
+    }, [debouncedValue]);
 
     const handleChange = useCallback(
         (e: React.ChangeEvent<HTMLInputElement>) => {

@@ -1,10 +1,3 @@
-/**
- * TaskItem - Individual task component with liquid glass effect
- * - Memoized to prevent unnecessary re-renders
- * - Uses Tailwind CSS for styling
- * - Performance optimized with useCallback
- */
-
 import {memo, useCallback} from 'react';
 import {Badge, Button} from './ui';
 import type {Task, TaskStatus} from '../types/index';

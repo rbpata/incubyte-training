@@ -1,10 +1,3 @@
-/**
- * LoginPage - Authentication page with login and register forms
- * - Lazy loaded for code splitting
- * - Uses Tailwind CSS and liquid glass effect
- * - Implements form validation and error handling
- */
-
 import {useState, useCallback} from 'react';
 import {useAuthApi} from '../hooks/useAuthApi';
 import {Feedback, Button, Card} from '../components/ui';
@@ -27,7 +20,6 @@ export function LoginPage() {
             setLocalError('');
             setLocalMessage('');
 
-            // Validation
             if (!email.includes('@')) {
                 setLocalError('Please enter a valid email address');
                 return;
@@ -69,7 +61,6 @@ export function LoginPage() {
     return (
         <div className='min-h-screen flex items-center justify-center px-4 py-8'>
             <Card className='w-full max-w-md' variant='default'>
-                {/* Header */}
                 <div className='text-center mb-8'>
                     <div className='text-5xl mb-3'>🔐</div>
                     <h2 className='text-3xl font-bold text-gray-900 mb-2'>
@@ -82,9 +73,7 @@ export function LoginPage() {
                     </p>
                 </div>
 
-                {/* Form */}
                 <form className='space-y-5' onSubmit={handleSubmit}>
-                    {/* Email Field */}
                     <div>
                         <label className='block text-sm font-medium text-gray-900 mb-2'>
                             Email Address
@@ -100,7 +89,6 @@ export function LoginPage() {
                         />
                     </div>
 
-                    {/* Password Field */}
                     <div>
                         <label className='block text-sm font-medium text-gray-900 mb-2'>
                             Password
@@ -136,7 +124,6 @@ export function LoginPage() {
                         )}
                     </div>
 
-                    {/* Full Name Field (Register Only) */}
                     {mode === 'register' && (
                         <div>
                             <label className='block text-sm font-medium text-gray-900 mb-2'>
@@ -154,7 +141,6 @@ export function LoginPage() {
                         </div>
                     )}
 
-                    {/* Submit Button */}
                     <Button
                         type='submit'
                         variant='primary'
@@ -169,7 +155,6 @@ export function LoginPage() {
                     </Button>
                 </form>
 
-                {/* Toggle Mode */}
                 <div className='mt-6 text-center border-t border-gray-200 pt-6'>
                     <p className='text-sm text-gray-600 mb-4'>
                         {mode === 'login'
@@ -190,7 +175,6 @@ export function LoginPage() {
                     </Button>
                 </div>
 
-                {/* Messages */}
                 <div className='mt-6 space-y-3'>
                     {displayError && (
                         <Feedback

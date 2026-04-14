@@ -16,7 +16,7 @@ export class Storage {
     try {
       localStorage.setItem(key, value)
     } catch {
-      // Silently fail on quota exceeded or private browsing mode
+      return
     }
   }
 
@@ -24,7 +24,7 @@ export class Storage {
     try {
       localStorage.removeItem(key)
     } catch {
-      // Silently fail on storage errors
+      return
     }
   }
 
@@ -32,7 +32,7 @@ export class Storage {
     try {
       localStorage.clear()
     } catch {
-      // Silently fail on storage errors
+      return
     }
   }
 }

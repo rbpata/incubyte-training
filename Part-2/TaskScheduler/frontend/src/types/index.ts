@@ -1,8 +1,3 @@
-/**
- * Core type definitions for the Task Scheduler application.
- * Centralized types used across the application.
- */
-
 export type TaskStatus = 'pending' | 'running' | 'completed' | 'failed'
 export type TaskPriority = 'low' | 'medium' | 'high'
 export type AuthMode = 'login' | 'register'
