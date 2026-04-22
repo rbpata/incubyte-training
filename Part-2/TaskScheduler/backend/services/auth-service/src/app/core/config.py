@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     rate_limit_calls: int = Field(default=100)
     rate_limit_period: int = Field(default=60)
 
+    sentry_dsn: str | None = Field(default=None, description="Sentry DSN for error tracking. Leave unset to disable.")
+
     bcrypt_rounds: int = Field(default=12)
 
     @field_validator("cors_origins", mode="before")

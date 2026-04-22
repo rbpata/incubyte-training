@@ -12,6 +12,7 @@ from fastapi import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.metrics import TASKS_CREATED_TOTAL
 from app.db.base import TaskStatus
 from app.dependencies import (
     CurrentUser,
@@ -41,6 +42,7 @@ def create_tasks_router() -> APIRouter:
         _: None = Depends(rate_limit_dependency),
     ) -> TaskRead:
         task = await service.create_task(payload, user_id=current_user.id)
+        TASKS_CREATED_TOTAL.labels(user_id=str(current_user.id)).inc()
         return TaskRead.model_validate(task)
 
     @tasks_router.get("/tasks", response_model=PaginatedTaskRead)

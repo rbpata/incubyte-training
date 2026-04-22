@@ -1,0 +1,2 @@
+# used to configure the prometheus server. It defines the scrape configuration, which tells prometheus where to find the metrics endpoints of the applications it needs to monitor.
+#  In this case, it is configured to scrape metrics from an application running on localhost at port 8000 every 5 seconds.

@@ -3,6 +3,7 @@ import logging
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 
+from app.core.metrics import AUTH_LOGIN_ATTEMPTS_TOTAL, AUTH_REGISTRATIONS_TOTAL, AUTH_TOKEN_REFRESHES_TOTAL, API_KEYS_CREATED_TOTAL
 from app.models.api_key import ApiKey
 from app.models.user import User
 from app.schemas.auth import (
@@ -44,6 +45,7 @@ def create_auth_router() -> APIRouter:
         try:
             user = await service.register_user(payload)
             await service.session.commit()
+            AUTH_REGISTRATIONS_TOTAL.inc()
             return UserResponse.model_validate(user)
         except UserAlreadyExistsError as e:
             raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
@@ -56,8 +58,10 @@ def create_auth_router() -> APIRouter:
         try:
             token_response = await service.login_user(payload)
             await service.session.commit()
+            AUTH_LOGIN_ATTEMPTS_TOTAL.labels(result="success").inc()
             return token_response
         except InvalidCredentialsError as e:
+            AUTH_LOGIN_ATTEMPTS_TOTAL.labels(result="failure").inc()
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
             )
@@ -68,8 +72,11 @@ def create_auth_router() -> APIRouter:
         service: AuthService = Depends(provide_auth_service),
     ) -> TokenResponse:
         try:
-            return await service.refresh_access_token(payload)
+            result = await service.refresh_access_token(payload)
+            AUTH_TOKEN_REFRESHES_TOTAL.labels(result="success").inc()
+            return result
         except Exception as e:
+            AUTH_TOKEN_REFRESHES_TOTAL.labels(result="failure").inc()
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
             )
@@ -107,6 +114,7 @@ def create_auth_router() -> APIRouter:
             current_user.id, payload.name
         )
         await service.session.commit()
+        API_KEYS_CREATED_TOTAL.inc()
         return ApiKeyCreateResponse(
             id=api_key_record.id,
             name=api_key_record.name,

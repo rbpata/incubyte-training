@@ -1,0 +1,106 @@
+{
+  "title": "Task Scheduler - Observability",
+  "uid": "task-scheduler-obs",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "30s",
+  "tags": ["task-scheduler"],
+  "panels": [
+    {
+      "id": 1,
+      "title": "HTTP Request Rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [
+        {
+          "expr": "rate(http_requests_total[1m])",
+          "legendFormat": "{{method}} {{path}} {{status_code}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "HTTP P95 Latency (seconds)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+          "legendFormat": "p95 {{path}}"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Tasks Created / min",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
+      "targets": [
+        {"expr": "rate(tasks_created_total[1m])", "legendFormat": "tasks/min"}
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Login Success Rate",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
+      "targets": [
+        {
+          "expr": "rate(auth_login_attempts_total{result=\"success\"}[5m]) / rate(auth_login_attempts_total[5m])",
+          "legendFormat": "success rate"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Active Tasks",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 8},
+      "targets": [
+        {"expr": "active_tasks_total", "legendFormat": "active tasks"}
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Background Job Results",
+      "type": "piechart",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 8},
+      "targets": [
+        {"expr": "background_jobs_total", "legendFormat": "{{result}}"}
+      ]
+    },
+    {
+      "id": 7,
+      "title": "HTTP Error Rate (4xx + 5xx)",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12},
+      "targets": [
+        {
+          "expr": "rate(http_requests_total{status_code=~\"4..|5..\"}[1m])",
+          "legendFormat": "{{status_code}} {{path}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Auth Registrations Total",
+      "type": "stat",
+      "gridPos": {"h": 4, "w": 6, "x": 12, "y": 12},
+      "targets": [
+        {"expr": "auth_registrations_total", "legendFormat": "registrations"}
+      ]
+    },
+    {
+      "id": 9,
+      "title": "Token Refreshes",
+      "type": "timeseries",
+      "gridPos": {"h": 4, "w": 6, "x": 18, "y": 12},
+      "targets": [
+        {
+          "expr": "rate(auth_token_refreshes_total[5m])",
+          "legendFormat": "{{result}}"
+        }
+      ]
+    }
+  ]
+}
