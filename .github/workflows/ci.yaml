@@ -1,0 +1,15 @@
+name: CI Workflow                  # Optional: Name of the workflow
+run-name: Build by @${{ github.actor }} # Optional: Name for specific runs
+
+on: [push, pull_request]          # Trigger: When the workflow runs
+
+jobs:                             # Groups all jobs together
+  build-and-test:                 # Job ID
+    runs-on: ubuntu-latest        # Environment (Runner)
+    
+    steps:                        # Sequence of tasks for the job
+      - name: Checkout Code       # Step name
+        uses: actions/checkout@v4 # Uses a pre-built action
+
+      - name: Run a Script
+        run: echo "Hello, GitHub Actions!"
